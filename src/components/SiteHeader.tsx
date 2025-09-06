@@ -55,7 +55,18 @@ export default function SiteHeader({ title, subtitle }: SiteHeaderProps) {
               pathname === '/' ? 'text-cyan-500 font-medium' : 'text-gray-600'
             }`}
           >
-            Home
+            About
+          </Link>
+          
+          <span className="text-gray-300">•</span>
+          
+          <Link 
+            href="/random" 
+            className={`hover:text-cyan-500 transition-colors ${
+              pathname === '/random' ? 'text-cyan-500 font-medium' : 'text-gray-600'
+            }`}
+          >
+            Random Story
           </Link>
           
           <span className="text-gray-300">•</span>
@@ -68,15 +79,6 @@ export default function SiteHeader({ title, subtitle }: SiteHeaderProps) {
           >
             All Stories
           </Link>
-          
-          <span className="text-gray-300">•</span>
-          
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="text-gray-600 hover:text-cyan-500 transition-colors cursor-pointer"
-          >
-            Random Story
-          </button>
         </nav>
       </div>
     </header>
