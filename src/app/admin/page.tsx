@@ -38,6 +38,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     document.cookie = 'admin-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    localStorage.removeItem('admin-authenticated')
     setIsAuthenticated(false)
   }
 

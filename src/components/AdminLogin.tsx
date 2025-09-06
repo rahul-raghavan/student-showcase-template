@@ -29,6 +29,8 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
       })
 
       if (response.ok) {
+        // Store password for API calls (needed for Bearer token authentication)
+        localStorage.setItem('admin-authenticated', password)
         onLogin()
       } else {
         setError('Invalid password. Please try again.')
