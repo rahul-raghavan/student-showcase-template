@@ -12,7 +12,7 @@ export async function GET() {
         supabase: !!supabase,
         supabaseAdmin: !!supabaseAdmin
       },
-      tests: {} as any
+      tests: {} as Record<string, unknown>
     }
 
     // Test 1: Check if we can connect and list tables with regular client
@@ -29,10 +29,10 @@ export async function GET() {
           error: readError?.message,
           data: storiesRead
         }
-      } catch (error: any) {
+      } catch (error) {
         results.tests.regularClientRead = {
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
     }
@@ -66,10 +66,10 @@ export async function GET() {
             .delete()
             .eq('id', insertResult[0].id)
         }
-      } catch (error: any) {
+      } catch (error) {
         results.tests.adminClientInsert = {
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
     }
@@ -90,20 +90,20 @@ export async function GET() {
           error: tableError?.message,
           columns: tableInfo
         }
-      } catch (error: any) {
+      } catch (error) {
         results.tests.tableStructure = {
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
     }
 
     console.log('Debug results:', results)
     return NextResponse.json(results)
-  } catch (error: any) {
+  } catch (error) {
     console.error('Debug endpoint error:', error)
     return NextResponse.json({ 
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 })
   }
