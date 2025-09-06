@@ -15,6 +15,8 @@ interface StoryEditorProps {
 }
 
 export default function StoryEditor({ onSave, onCancel, initialStory, isEditing = false }: StoryEditorProps) {
+  // Debug: Log the API key being used
+  console.log('TinyMCE API Key:', process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "1ieksi5dxdky0c09ny4lbani1hqjsma5mfvj5q0rftikupg3");
   const [title, setTitle] = useState(initialStory?.title || '')
   const [content, setContent] = useState(initialStory?.content || '')
   const [isVisible, setIsVisible] = useState(initialStory?.isVisible ?? true)
