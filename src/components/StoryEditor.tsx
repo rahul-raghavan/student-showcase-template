@@ -84,7 +84,7 @@ export default function StoryEditor({ onSave, onCancel, initialStory, isEditing 
             Content *
           </label>
           <Editor
-            apiKey="1ieksi5dxdky0c09ny4lbani1hqjsma5mfvj5q0rftikupg3" // Replace with your actual API key
+            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "1ieksi5dxdky0c09ny4lbani1hqjsma5mfvj5q0rftikupg3"}
             value={content}
             onEditorChange={(newContent) => setContent(newContent)}
             init={{
