@@ -50,6 +50,11 @@ export const sampleStories = [
 
 export async function seedDatabase() {
   try {
+    if (!supabaseAdmin) {
+      console.log('Supabase not configured, skipping database seeding')
+      return
+    }
+    
     console.log('Seeding database with sample stories...')
     
     for (const story of sampleStories) {

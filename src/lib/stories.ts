@@ -1,44 +1,14 @@
 import { Story } from '@/types/database'
+import { supabase, supabaseAdmin } from './supabase'
 
-// Helper functions for localStorage
-function getStoriesFromStorage(): Story[] {
-  if (typeof window === 'undefined') {
-    console.log('Server side - returning default stories')
-    return defaultMockStories
-  }
-  
-  try {
-    const stored = localStorage.getItem('mock-stories')
-    console.log('localStorage content:', stored)
-    if (stored) {
-      const parsed = JSON.parse(stored) as Story[]
-      console.log('Parsed stories:', parsed.length, parsed.map((s: Story) => s.title))
-      return parsed
-    }
-  } catch (error) {
-    console.error('Error loading stories from storage:', error)
-  }
-  
-  console.log('No stored stories found, returning default')
-  return defaultMockStories
+// Check if we have valid Supabase configuration
+function hasValidSupabaseConfig(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return !!(url && key && url !== 'your_supabase_url_here' && key !== 'your_supabase_anon_key_here')
 }
 
-function saveStoriesToStorage(stories: Story[]): void {
-  if (typeof window === 'undefined') {
-    console.log('Server side - cannot save to localStorage')
-    return
-  }
-  
-  try {
-    console.log('Saving stories to localStorage:', stories.length, stories.map((s: Story) => s.title))
-    localStorage.setItem('mock-stories', JSON.stringify(stories))
-    console.log('Stories saved successfully')
-  } catch (error) {
-    console.error('Error saving stories to storage:', error)
-  }
-}
-
-// Default mock stories for testing (will be replaced with Supabase integration)
+// Fallback mock stories for development/testing
 const defaultMockStories: Story[] = [
   {
     id: 'story-1',
@@ -96,17 +66,70 @@ const defaultMockStories: Story[] = [
   }
 ]
 
+// Helper functions for localStorage (fallback when Supabase is not configured)
+function getStoriesFromStorage(): Story[] {
+  if (typeof window === 'undefined') {
+    console.log('Server side - returning default stories')
+    return defaultMockStories
+  }
+  
+  try {
+    const stored = localStorage.getItem('mock-stories')
+    if (stored) {
+      const parsed = JSON.parse(stored) as Story[]
+      return parsed
+    }
+  } catch (error) {
+    console.error('Error loading stories from storage:', error)
+  }
+  
+  return defaultMockStories
+}
+
+function saveStoriesToStorage(stories: Story[]): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+  
+  try {
+    localStorage.setItem('mock-stories', JSON.stringify(stories))
+  } catch (error) {
+    console.error('Error saving stories to storage:', error)
+  }
+}
+
 export async function getRandomStory(): Promise<Story | null> {
   try {
-    // Mock implementation - return a random visible story
-    const stories = getStoriesFromStorage()
-    const visibleStories = stories.filter(story => story.is_visible)
-    if (visibleStories.length === 0) {
+    if (hasValidSupabaseConfig() && supabase) {
+      console.log('🗄️ Using Supabase database for getRandomStory')
+      const { data: stories, error } = await supabase
+        .from('stories')
+        .select('*')
+        .eq('is_visible', true)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Supabase error in getRandomStory:', error)
+        return null
+      }
+
+      if (stories && stories.length > 0) {
+        const randomIndex = Math.floor(Math.random() * stories.length)
+        return stories[randomIndex]
+      }
+      
       return null
+    } else {
+      console.log('📁 Using localStorage fallback for getRandomStory')
+      const stories = getStoriesFromStorage()
+      const visibleStories = stories.filter(story => story.is_visible)
+      if (visibleStories.length === 0) {
+        return null
+      }
+      
+      const randomIndex = Math.floor(Math.random() * visibleStories.length)
+      return visibleStories[randomIndex]
     }
-    
-    const randomIndex = Math.floor(Math.random() * visibleStories.length)
-    return visibleStories[randomIndex]
   } catch (error) {
     console.error('Error in getRandomStory:', error)
     return null
@@ -115,10 +138,26 @@ export async function getRandomStory(): Promise<Story | null> {
 
 export async function getAllStories(): Promise<Story[]> {
   try {
-    // Mock implementation - return all visible stories
-    const stories = getStoriesFromStorage()
-    const visibleStories = stories.filter(story => story.is_visible)
-    return visibleStories.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    if (hasValidSupabaseConfig() && supabase) {
+      console.log('🗄️ Using Supabase database for getAllStories')
+      const { data: stories, error } = await supabase
+        .from('stories')
+        .select('*')
+        .eq('is_visible', true)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Supabase error in getAllStories:', error)
+        return []
+      }
+
+      return stories || []
+    } else {
+      console.log('📁 Using localStorage fallback for getAllStories')
+      const stories = getStoriesFromStorage()
+      const visibleStories = stories.filter(story => story.is_visible)
+      return visibleStories.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
   } catch (error) {
     console.error('Error in getAllStories:', error)
     return []
@@ -127,10 +166,26 @@ export async function getAllStories(): Promise<Story[]> {
 
 export async function getStoryById(id: string): Promise<Story | null> {
   try {
-    // Mock implementation - find story by ID
-    const stories = getStoriesFromStorage()
-    const story = stories.find(s => s.id === id)
-    return story || null
+    if (hasValidSupabaseConfig() && supabase) {
+      console.log('🗄️ Using Supabase database for getStoryById')
+      const { data: story, error } = await supabase
+        .from('stories')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        console.error('Supabase error in getStoryById:', error)
+        return null
+      }
+
+      return story
+    } else {
+      console.log('📁 Using localStorage fallback for getStoryById')
+      const stories = getStoriesFromStorage()
+      const story = stories.find(s => s.id === id)
+      return story || null
+    }
   } catch (error) {
     console.error('Error in getStoryById:', error)
     return null
@@ -139,21 +194,42 @@ export async function getStoryById(id: string): Promise<Story | null> {
 
 export async function createStory(title: string, content: string, isVisible: boolean = true): Promise<boolean> {
   try {
-    // Mock implementation - add new story
-    const stories = getStoriesFromStorage()
-    const newStory: Story = {
-      id: `story-${Date.now()}`,
-      title,
-      content,
-      is_visible: isVisible,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    if (hasValidSupabaseConfig() && supabaseAdmin) {
+      console.log('🗄️ Using Supabase database for createStory')
+      const { error } = await supabaseAdmin
+        .from('stories')
+        .insert([
+          {
+            title,
+            content,
+            is_visible: isVisible
+          }
+        ])
+
+      if (error) {
+        console.error('Supabase error in createStory:', error)
+        return false
+      }
+
+      console.log('✅ Story created successfully in Supabase')
+      return true
+    } else {
+      console.log('📁 Using localStorage fallback for createStory')
+      const stories = getStoriesFromStorage()
+      const newStory: Story = {
+        id: `story-${Date.now()}`,
+        title,
+        content,
+        is_visible: isVisible,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      stories.push(newStory)
+      saveStoriesToStorage(stories)
+      console.log('Story created in localStorage:', newStory)
+      return true
     }
-    
-    stories.push(newStory)
-    saveStoriesToStorage(stories)
-    console.log('Story created:', newStory)
-    return true
   } catch (error) {
     console.error('Error creating story:', error)
     return false
@@ -162,22 +238,43 @@ export async function createStory(title: string, content: string, isVisible: boo
 
 export async function updateStory(id: string, title: string, content: string, isVisible: boolean): Promise<boolean> {
   try {
-    // Mock implementation - update story
-    const stories = getStoriesFromStorage()
-    const storyIndex = stories.findIndex(s => s.id === id)
-    if (storyIndex > -1) {
-      stories[storyIndex] = {
-        ...stories[storyIndex],
-        title,
-        content,
-        is_visible: isVisible,
-        updated_at: new Date().toISOString()
+    if (hasValidSupabaseConfig() && supabaseAdmin) {
+      console.log('🗄️ Using Supabase database for updateStory')
+      const { error } = await supabaseAdmin
+        .from('stories')
+        .update({
+          title,
+          content,
+          is_visible: isVisible,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+
+      if (error) {
+        console.error('Supabase error in updateStory:', error)
+        return false
       }
-      saveStoriesToStorage(stories)
-      console.log('Story updated:', stories[storyIndex])
+
+      console.log('✅ Story updated successfully in Supabase')
       return true
+    } else {
+      console.log('📁 Using localStorage fallback for updateStory')
+      const stories = getStoriesFromStorage()
+      const storyIndex = stories.findIndex(s => s.id === id)
+      if (storyIndex > -1) {
+        stories[storyIndex] = {
+          ...stories[storyIndex],
+          title,
+          content,
+          is_visible: isVisible,
+          updated_at: new Date().toISOString()
+        }
+        saveStoriesToStorage(stories)
+        console.log('Story updated in localStorage:', stories[storyIndex])
+        return true
+      }
+      return false
     }
-    return false
   } catch (error) {
     console.error('Error updating story:', error)
     return false
@@ -186,17 +283,36 @@ export async function updateStory(id: string, title: string, content: string, is
 
 export async function updateStoryVisibility(id: string, isVisible: boolean): Promise<boolean> {
   try {
-    // Mock implementation - update story visibility
-    const stories = getStoriesFromStorage()
-    const story = stories.find(s => s.id === id)
-    if (story) {
-      story.is_visible = isVisible
-      story.updated_at = new Date().toISOString()
-      saveStoriesToStorage(stories)
-      console.log('Story visibility updated:', story)
+    if (hasValidSupabaseConfig() && supabaseAdmin) {
+      console.log('🗄️ Using Supabase database for updateStoryVisibility')
+      const { error } = await supabaseAdmin
+        .from('stories')
+        .update({
+          is_visible: isVisible,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+
+      if (error) {
+        console.error('Supabase error in updateStoryVisibility:', error)
+        return false
+      }
+
+      console.log('✅ Story visibility updated successfully in Supabase')
       return true
+    } else {
+      console.log('📁 Using localStorage fallback for updateStoryVisibility')
+      const stories = getStoriesFromStorage()
+      const story = stories.find(s => s.id === id)
+      if (story) {
+        story.is_visible = isVisible
+        story.updated_at = new Date().toISOString()
+        saveStoriesToStorage(stories)
+        console.log('Story visibility updated in localStorage:', story)
+        return true
+      }
+      return false
     }
-    return false
   } catch (error) {
     console.error('Error updating story visibility:', error)
     return false
@@ -205,16 +321,32 @@ export async function updateStoryVisibility(id: string, isVisible: boolean): Pro
 
 export async function deleteStory(id: string): Promise<boolean> {
   try {
-    // Mock implementation - delete story
-    const stories = getStoriesFromStorage()
-    const storyIndex = stories.findIndex(s => s.id === id)
-    if (storyIndex > -1) {
-      stories.splice(storyIndex, 1)
-      saveStoriesToStorage(stories)
-      console.log('Story deleted:', id)
+    if (hasValidSupabaseConfig() && supabaseAdmin) {
+      console.log('🗄️ Using Supabase database for deleteStory')
+      const { error } = await supabaseAdmin
+        .from('stories')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('Supabase error in deleteStory:', error)
+        return false
+      }
+
+      console.log('✅ Story deleted successfully from Supabase')
       return true
+    } else {
+      console.log('📁 Using localStorage fallback for deleteStory')
+      const stories = getStoriesFromStorage()
+      const storyIndex = stories.findIndex(s => s.id === id)
+      if (storyIndex > -1) {
+        stories.splice(storyIndex, 1)
+        saveStoriesToStorage(stories)
+        console.log('Story deleted from localStorage:', id)
+        return true
+      }
+      return false
     }
-    return false
   } catch (error) {
     console.error('Error deleting story:', error)
     return false

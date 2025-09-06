@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { submitComment } from '@/lib/comments'
+import { createComment } from '@/lib/comments'
 
 interface CommentFormProps {
   storyId: string
@@ -30,7 +30,7 @@ export default function CommentForm({ storyId, onCommentSubmitted }: CommentForm
     setIsSubmitting(true)
     
     try {
-      const success = await submitComment(storyId, authorName.trim(), content.trim())
+      const success = await createComment(storyId, authorName.trim(), content.trim())
       
       if (success) {
         setAuthorName('')

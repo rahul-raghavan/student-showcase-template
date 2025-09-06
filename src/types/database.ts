@@ -10,7 +10,7 @@ export interface Story {
 export interface Comment {
   id: string
   story_id: string
-  author_name?: string
+  author_name?: string | null
   content: string
   is_approved: boolean
   created_at: string
