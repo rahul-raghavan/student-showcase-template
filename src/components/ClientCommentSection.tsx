@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Comment } from '@/types/database'
 import { getCommentsByStoryId } from '@/lib/comments'
 import CommentForm from './CommentForm'
@@ -14,7 +14,7 @@ export default function ClientCommentSection({ storyId }: ClientCommentSectionPr
   const [comments, setComments] = useState<Comment[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setIsLoading(true)
     try {
       const storyComments = await getCommentsByStoryId(storyId)
@@ -24,11 +24,11 @@ export default function ClientCommentSection({ storyId }: ClientCommentSectionPr
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [storyId])
 
   useEffect(() => {
     loadComments()
-  }, [storyId])
+  }, [storyId, loadComments])
 
   const handleCommentSubmitted = () => {
     // Reload comments after a new comment is submitted

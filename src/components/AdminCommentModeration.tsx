@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Comment } from '@/types/database'
 import { getAllPendingCommentsWithStories, approveComment, rejectComment, CommentWithStory } from '@/lib/comments'
 
 export default function AdminCommentModeration() {
@@ -105,7 +104,7 @@ export default function AdminCommentModeration() {
                   {comment.author_name || 'Anonymous'}
                 </h4>
                 <p className="text-sm text-cyan-600 mt-1">
-                  Story: "{comment.story_title}"
+                  Story: &quot;{comment.story_title}&quot;
                 </p>
               </div>
               <span className="text-xs text-gray-500">

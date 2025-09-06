@@ -1,4 +1,3 @@
-import { supabase } from './supabase'
 import { Story } from '@/types/database'
 
 // Helper functions for localStorage

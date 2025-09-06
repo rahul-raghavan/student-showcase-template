@@ -1,4 +1,4 @@
-import { Comment, Story } from '@/types/database'
+import { Comment } from '@/types/database'
 import { getAllStories } from './stories'
 
 // Default mock data for comments

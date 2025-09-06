@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     } else {
       return NextResponse.json({ authenticated: false })
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json({ authenticated: false })
   }
 }
