@@ -73,7 +73,7 @@ export default function SiteHeader({ title, subtitle }: SiteHeaderProps) {
           
           <button 
             onClick={() => window.location.href = '/'}
-            className="text-gray-600 hover:text-cyan-500 transition-colors"
+            className="text-gray-600 hover:text-cyan-500 transition-colors cursor-pointer"
           >
             Random Story
           </button>
