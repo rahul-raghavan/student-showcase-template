@@ -83,112 +83,34 @@ export default function StoryEditor({ onSave, onCancel, initialStory, isEditing 
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Content *
           </label>
-          
-          {/* Rich Text Editor Toolbar */}
-          <div className="border border-gray-300 rounded-t-lg bg-gray-50 p-2 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<strong>${selectedText}</strong>` + content.substring(end);
-                setContent(newText);
+          <div className="border rounded-lg overflow-hidden">
+            <Editor
+              apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || undefined}
+              value={content}
+              onEditorChange={(newContent) => setContent(newContent)}
+              init={{
+                height: 400,
+                menubar: false,
+                plugins: [
+                  'advlist', 'autolink', 'lists', 'link', 'charmap', 
+                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                  'insertdatetime', 'table', 'preview', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                  'bold italic underline strikethrough | forecolor backcolor | ' +
+                  'alignleft aligncenter alignright alignjustify | ' +
+                  'bullist numlist outdent indent | removeformat | help',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }',
+                block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Heading 5=h5; Heading 6=h6; Preformatted=pre',
+                font_family_formats: 'Arial=arial,helvetica,sans-serif; Comic Sans MS=comic sans ms,cursive; Courier New=courier new,courier,monospace; Georgia=georgia,serif; Helvetica=helvetica,arial,sans-serif; Times New Roman=times new roman,times,serif; Trebuchet MS=trebuchet ms,geneva,sans-serif; Verdana=verdana,geneva,sans-serif',
+                font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                branding: false,
+                promotion: false
               }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 font-bold"
-              title="Bold"
-            >
-              B
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<em>${selectedText}</em>` + content.substring(end);
-                setContent(newText);
-              }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 italic"
-              title="Italic"
-            >
-              I
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<p>${selectedText}</p>` + content.substring(end);
-                setContent(newText);
-              }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100"
-              title="Paragraph"
-            >
-              P
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<br>${selectedText}` + content.substring(end);
-                setContent(newText);
-              }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100"
-              title="Line Break"
-            >
-              ↵
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<ul><li>${selectedText}</li></ul>` + content.substring(end);
-                setContent(newText);
-              }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100"
-              title="Bullet List"
-            >
-              •
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const textarea = document.getElementById('story-content') as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + `<ol><li>${selectedText}</li></ol>` + content.substring(end);
-                setContent(newText);
-              }}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100"
-              title="Numbered List"
-            >
-              1.
-            </button>
+            />
           </div>
-          
-          <textarea
-            id="story-content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-4 border border-t-0 border-gray-300 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
-            placeholder="Write your story content here..."
-            rows={15}
-            required
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            💡 <strong>Tip:</strong> Select text and use the toolbar buttons above to format it, or type HTML tags directly.
+          <p className="text-sm text-gray-500 mt-2">
+            ✨ <strong>Rich Editor:</strong> Use the toolbar above for different fonts, sizes, colors, and formatting!
           </p>
         </div>
 
