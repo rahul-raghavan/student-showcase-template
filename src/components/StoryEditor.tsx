@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Editor } from '@tinymce/tinymce-react'
 
 interface StoryEditorProps {
   onSave: (story: { title: string; content: string; isVisible: boolean }) => void
@@ -15,8 +14,6 @@ interface StoryEditorProps {
 }
 
 export default function StoryEditor({ onSave, onCancel, initialStory, isEditing = false }: StoryEditorProps) {
-  // Debug: Log the API key being used
-  console.log('TinyMCE API Key:', process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "1ieksi5dxdky0c09ny4lbani1hqjsma5mfvj5q0rftikupg3");
   const [title, setTitle] = useState(initialStory?.title || '')
   const [content, setContent] = useState(initialStory?.content || '')
   const [isVisible, setIsVisible] = useState(initialStory?.isVisible ?? true)
@@ -85,29 +82,17 @@ export default function StoryEditor({ onSave, onCancel, initialStory, isEditing 
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Content *
           </label>
-          <Editor
-            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "1ieksi5dxdky0c09ny4lbani1hqjsma5mfvj5q0rftikupg3"}
+          <textarea
             value={content}
-            onEditorChange={(newContent) => setContent(newContent)}
-            init={{
-              height: 400,
-              menubar: false,
-              plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'help', 'wordcount'
-              ],
-              toolbar: 'undo redo | blocks | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help',
-              content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }',
-              // Add these settings to help with API key validation
-              promotion: false,
-              branding: false,
-              license_key: 'gpl'
-            }}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
+            placeholder="Write your story content here..."
+            rows={15}
+            required
           />
+          <p className="text-sm text-gray-500 mt-1">
+            💡 <strong>Tip:</strong> You can use basic HTML tags like &lt;strong&gt;, &lt;em&gt;, &lt;p&gt;, &lt;br&gt; for formatting.
+          </p>
         </div>
 
         {/* Actions */}
