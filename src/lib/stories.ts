@@ -11,8 +11,8 @@ function getStoriesFromStorage(): Story[] {
     const stored = localStorage.getItem('mock-stories')
     console.log('localStorage content:', stored)
     if (stored) {
-      const parsed = JSON.parse(stored)
-      console.log('Parsed stories:', parsed.length, parsed.map(s => s.title))
+      const parsed = JSON.parse(stored) as Story[]
+      console.log('Parsed stories:', parsed.length, parsed.map((s: Story) => s.title))
       return parsed
     }
   } catch (error) {
@@ -30,7 +30,7 @@ function saveStoriesToStorage(stories: Story[]): void {
   }
   
   try {
-    console.log('Saving stories to localStorage:', stories.length, stories.map(s => s.title))
+    console.log('Saving stories to localStorage:', stories.length, stories.map((s: Story) => s.title))
     localStorage.setItem('mock-stories', JSON.stringify(stories))
     console.log('Stories saved successfully')
   } catch (error) {
