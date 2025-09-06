@@ -178,7 +178,7 @@ git push -u origin main
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon public key | `eyJhbGciOiJIUzI1NiIsInR5cCI6...` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Your service role key | `eyJhbGciOiJIUzI1NiIsInR5cCI6...` |
 | `ADMIN_PASSWORD` | Your chosen admin password | `MySecurePassword123!` |
-| `TINYMCE_API_KEY` | Your TinyMCE API key (see setup below) | `your-api-key-here` |
+| `NEXT_PUBLIC_TINYMCE_API_KEY` | Your TinyMCE API key (see setup below) | `your-api-key-here` |
 
 **🔧 TinyMCE API Key Setup:**
    1. **Go to [tiny.cloud](https://www.tiny.cloud/auth/signup/)**
@@ -186,7 +186,7 @@ git push -u origin main
    3. **After signup, go to [dashboard](https://www.tiny.cloud/my-account/dashboard/)**
    4. **Click "Tiny API Key" in sidebar**
    5. **Copy your API key** (format: `your-domain-here`)
-   6. **Add as `TINYMCE_API_KEY` environment variable** in step above
+   6. **Add as `NEXT_PUBLIC_TINYMCE_API_KEY` environment variable** in step above
 
 3. **Click "Deploy"**
 4. **Wait 3-5 minutes** for deployment to complete
