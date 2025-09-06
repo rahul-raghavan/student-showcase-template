@@ -6,6 +6,29 @@ import PageLayout from '@/components/PageLayout';
 import { useState, useEffect } from 'react';
 import { Story } from '@/types/database';
 
+// Helper function to strip HTML tags and decode HTML entities for clean text display
+function getPlainTextFromHTML(html: string): string {
+  // Create a temporary DOM element to properly decode HTML entities
+  if (typeof window !== 'undefined') {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html.replace(/<[^>]*>/g, '');
+    return tempDiv.textContent || tempDiv.innerText || '';
+  }
+  
+  // Server-side fallback: basic entity decoding
+  return html
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Non-breaking space
+    .replace(/&ndash;/g, '–') // En dash
+    .replace(/&mdash;/g, '—') // Em dash
+    .replace(/&ldquo;/g, '"') // Left double quote
+    .replace(/&rdquo;/g, '"') // Right double quote
+    .replace(/&lsquo;/g, "'") // Left single quote
+    .replace(/&rsquo;/g, "'") // Right single quote
+    .replace(/&amp;/g, '&') // Ampersand (must be last)
+    .trim();
+}
+
 export default function StoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +97,7 @@ export default function StoriesPage() {
               
               <div className="mb-4">
                 <p className="text-gray-700 leading-relaxed">
-                  {story.content.replace(/<[^>]*>/g, '').substring(0, 180)}...
+                  {getPlainTextFromHTML(story.content).substring(0, 180)}...
                 </p>
               </div>
               
