@@ -101,7 +101,11 @@ export default function StoryEditor({ onSave, onCancel, initialStory, isEditing 
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
                 'removeformat | help',
-              content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }'
+              content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }',
+              // Add these settings to help with API key validation
+              promotion: false,
+              branding: false,
+              license_key: 'gpl'
             }}
           />
         </div>
