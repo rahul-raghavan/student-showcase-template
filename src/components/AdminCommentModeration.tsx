@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getAllPendingCommentsWithStories, approveComment, rejectComment, CommentWithStory } from '@/lib/comments'
+import { CommentWithStory } from '@/lib/comments'
 
 export default function AdminCommentModeration() {
   const [comments, setComments] = useState<CommentWithStory[]>([])
@@ -11,10 +11,30 @@ export default function AdminCommentModeration() {
   const loadComments = async () => {
     setIsLoading(true)
     try {
-      const pendingComments = await getAllPendingCommentsWithStories()
-      setComments(pendingComments)
+      const adminPassword = localStorage.getItem('admin-authenticated')
+      if (!adminPassword) {
+        console.error('Admin not authenticated')
+        setComments([])
+        return
+      }
+
+      const response = await fetch('/api/admin/comments', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${adminPassword}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setComments(data.comments)
+      } else {
+        console.error('Failed to load comments:', await response.text())
+        setComments([])
+      }
     } catch (error) {
       console.error('Error loading comments:', error)
+      setComments([])
     } finally {
       setIsLoading(false)
     }
@@ -27,11 +47,32 @@ export default function AdminCommentModeration() {
   const handleApprove = async (commentId: string) => {
     setActionLoading(commentId)
     try {
-      const success = await approveComment(commentId)
-      if (success) {
+      const adminPassword = localStorage.getItem('admin-authenticated')
+      if (!adminPassword) {
+        alert('Authentication required')
+        return
+      }
+
+      const response = await fetch('/api/admin/comments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminPassword}`
+        },
+        body: JSON.stringify({
+          commentId,
+          action: 'approve'
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Comment approved successfully:', result)
         await loadComments() // Reload comments
       } else {
-        alert('Failed to approve comment')
+        const error = await response.json()
+        console.error('Failed to approve comment:', error)
+        alert(`Failed to approve comment: ${error.message || error.error}`)
       }
     } catch (error) {
       console.error('Error approving comment:', error)
@@ -48,11 +89,32 @@ export default function AdminCommentModeration() {
 
     setActionLoading(commentId)
     try {
-      const success = await rejectComment(commentId)
-      if (success) {
+      const adminPassword = localStorage.getItem('admin-authenticated')
+      if (!adminPassword) {
+        alert('Authentication required')
+        return
+      }
+
+      const response = await fetch('/api/admin/comments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminPassword}`
+        },
+        body: JSON.stringify({
+          commentId,
+          action: 'reject'
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Comment rejected successfully:', result)
         await loadComments() // Reload comments
       } else {
-        alert('Failed to reject comment')
+        const error = await response.json()
+        console.error('Failed to reject comment:', error)
+        alert(`Failed to reject comment: ${error.message || error.error}`)
       }
     } catch (error) {
       console.error('Error rejecting comment:', error)
