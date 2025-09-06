@@ -7,7 +7,7 @@ import AdminCommentModeration from '@/components/AdminCommentModeration';
 import StoryManagement from '@/components/StoryManagement';
 import StoryEditor from '@/components/StoryEditor';
 import { Story } from '@/types/database';
-import { createStory, updateStory } from '@/lib/stories';
+// Admin operations now use API routes instead of direct function calls
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -53,20 +53,55 @@ export default function AdminPage() {
 
   const handleSaveStory = async (storyData: { title: string; content: string; isVisible: boolean }) => {
     try {
-      let success = false
-      
-      if (editingStory) {
-        success = await updateStory(editingStory.id, storyData.title, storyData.content, storyData.isVisible)
-      } else {
-        success = await createStory(storyData.title, storyData.content, storyData.isVisible)
+      const adminPassword = localStorage.getItem('admin-authenticated')
+      if (!adminPassword) {
+        alert('Authentication required')
+        return
       }
 
-      if (success) {
+      let response: Response
+      
+      if (editingStory) {
+        // Update existing story
+        response = await fetch('/api/admin/stories', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminPassword}`
+          },
+          body: JSON.stringify({
+            id: editingStory.id,
+            title: storyData.title,
+            content: storyData.content,
+            isVisible: storyData.isVisible
+          })
+        })
+      } else {
+        // Create new story
+        response = await fetch('/api/admin/stories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminPassword}`
+          },
+          body: JSON.stringify({
+            title: storyData.title,
+            content: storyData.content,
+            isVisible: storyData.isVisible
+          })
+        })
+      }
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Story saved successfully:', result)
         setShowStoryEditor(false)
         setEditingStory(null)
         // The StoryManagement component will refresh automatically
       } else {
-        alert('Failed to save story. Please try again.')
+        const error = await response.json()
+        console.error('Failed to save story:', error)
+        alert(`Failed to save story: ${error.message || error.error}`)
       }
     } catch (error) {
       console.error('Error saving story:', error)
