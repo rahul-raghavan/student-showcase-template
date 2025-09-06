@@ -13,10 +13,10 @@ export async function GET() {
     // Only show first/last few characters of keys for security
     anonKeyPreview: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 10) + '...' + 
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(-10) : 'missing',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.slice(-10) : 'missing',
     serviceKeyPreview: process.env.SUPABASE_SERVICE_ROLE_KEY ? 
       process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 10) + '...' + 
-      process.env.SUPABASE_SERVICE_ROLE_KEY.substring(-10) : 'missing'
+      process.env.SUPABASE_SERVICE_ROLE_KEY.slice(-10) : 'missing'
   }
 
   return NextResponse.json(envVars)
