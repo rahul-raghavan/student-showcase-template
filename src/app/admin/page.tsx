@@ -6,6 +6,7 @@ import AdminLogin from '@/components/AdminLogin';
 import AdminCommentModeration from '@/components/AdminCommentModeration';
 import StoryManagement from '@/components/StoryManagement';
 import StoryEditor from '@/components/StoryEditor';
+import AdminAnalytics from '@/components/AdminAnalytics';
 import { Story } from '@/types/database';
 // Admin operations now use API routes instead of direct function calls
 
@@ -204,8 +205,11 @@ export default function AdminPage() {
       {/* Admin Dashboard */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Comment Moderation */}
+          {/* Comment Moderation - Top Priority */}
           <AdminCommentModeration />
+
+          {/* Analytics - Classroom Overview */}
+          <AdminAnalytics />
 
           {/* Story Management */}
           <StoryManagement

@@ -2,6 +2,8 @@
 
 import { Story } from '@/types/database'
 import { RefreshCw } from 'lucide-react'
+import { useEffect } from 'react'
+import { recordStoryView } from '@/lib/analytics'
 
 interface StoryDisplayProps {
   story: Story | null
@@ -10,6 +12,17 @@ interface StoryDisplayProps {
 }
 
 export default function StoryDisplay({ story, isLoading = false, showDate = true }: StoryDisplayProps) {
+  // Track story view when component mounts and story is available
+  useEffect(() => {
+    if (story && story.id) {
+      // Record view asynchronously - won't block the UI
+      recordStoryView(story.id).catch(err => {
+        // Silent failure - analytics shouldn't break the experience
+        console.warn('Failed to record story view:', err)
+      })
+    }
+  }, [story?.id])
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg border border-gray-100 p-8 mb-8">
