@@ -21,7 +21,7 @@ export default function StoryDisplay({ story, isLoading = false, showDate = true
         console.warn('Failed to record story view:', err)
       })
     }
-  }, [story?.id])
+  }, [story])
 
   if (isLoading) {
     return (

@@ -24,7 +24,7 @@ export function getSessionId(): string {
 export async function recordStoryView(storyId: string): Promise<void> {
   try {
     // Skip analytics if no valid Supabase config
-    if (!hasValidSupabaseConfig()) {
+    if (!hasValidSupabaseConfig() || !supabase) {
       console.log('📊 Analytics: Skipping view tracking (no Supabase config)')
       return
     }
@@ -72,7 +72,7 @@ export async function recordStoryView(storyId: string): Promise<void> {
 export async function getStoryViewStats() {
   try {
     // Skip analytics if no valid Supabase config
-    if (!hasValidSupabaseConfig()) {
+    if (!hasValidSupabaseConfig() || !supabase) {
       console.log('📊 Analytics: Skipping stats (no Supabase config)')
       return []
     }
@@ -93,10 +93,20 @@ export async function getStoryViewStats() {
     
     console.log('📊 Analytics: Raw data:', data?.length, 'views found')
     
-    // Group by story and count unique sessions
-    const stats = data.reduce((acc: any, view: any) => {
-      const storyId = view.story_id
-      const storyTitle = view.stories.title
+    interface StoryStatsAcc {
+      [key: string]: {
+        id: string
+        title: string
+        uniqueViews: Set<string>
+        totalViews: number
+      }
+    }
+
+    // Group by story and count unique sessions  
+    const stats = data.reduce((acc: StoryStatsAcc, view: Record<string, unknown>) => {
+      const storyId = String(view.story_id || '')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const storyTitle = String((view.stories as any)?.title || 'Unknown Story')
       
       if (!acc[storyId]) {
         acc[storyId] = {
@@ -107,14 +117,14 @@ export async function getStoryViewStats() {
         }
       }
       
-      acc[storyId].uniqueViews.add(view.session_id)
+      acc[storyId].uniqueViews.add(String(view.session_id || ''))
       acc[storyId].totalViews++
       
       return acc
     }, {})
     
     // Convert to array and add unique view counts
-    const result = Object.values(stats).map((story: any) => ({
+    const result = Object.values(stats).map((story) => ({
       id: story.id,
       title: story.title,
       uniqueViews: story.uniqueViews.size,
@@ -133,7 +143,7 @@ export async function getStoryViewStats() {
 export async function getGlobalStats() {
   try {
     // Skip analytics if no valid Supabase config
-    if (!hasValidSupabaseConfig()) {
+    if (!hasValidSupabaseConfig() || !supabase) {
       console.log('📊 Analytics: Skipping global stats (no Supabase config)')
       return { uniqueReaders: 0, totalViews: 0 }
     }
