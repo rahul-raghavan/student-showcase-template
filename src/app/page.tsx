@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react'
 import { getRandomStory } from '@/lib/stories'
 import PageLayout from '@/components/PageLayout'
 import Link from 'next/link'
+import { siteConfig, getAboutContent, getContentLabels } from '@/lib/config'
 
 export default function AboutPage() {
   const [randomStoryId, setRandomStoryId] = useState<string | null>(null)
+  const aboutContent = getAboutContent()
+  const contentLabels = getContentLabels()
 
   useEffect(() => {
     const loadRandomStoryId = async () => {
@@ -31,39 +34,39 @@ export default function AboutPage() {
           <div className="max-w-2xl mx-auto">
             <div className="space-y-6">
               <p className="text-base leading-7 text-gray-700">
-                These horror stories were written by middle school students at{' '}
+                {aboutContent.main.split('{school}')[0]}
                 <a 
-                  href="https://www.pepschoolv2.com" 
+                  href={siteConfig.school.website} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-cyan-600 hover:text-cyan-700 underline font-medium transition-colors duration-200"
+                  className={`text-${siteConfig.theme.accentColor} hover:text-${siteConfig.theme.accentColor.replace('600', '700')} underline font-medium transition-colors duration-200`}
                 >
-                  PEP Schoolv2
+                  {siteConfig.school.name}
                 </a>
-                . Each one began as a handwritten, handcrafted piece that we digitized to share with the wider world.
+                {aboutContent.main.split('{school}')[1]}
               </p>
 
               <br />
 
               <p className="text-base leading-7 text-gray-700">
-                Our goal is to give young writers a real audience beyond the classroom. We invite you to read their work and leave comments that are kind, gentle, and constructive.
+                {aboutContent.goal}
               </p>
 
               <br />
 
               <p className="text-base leading-7 text-gray-700">
-                Start by reading a{' '}
+                {aboutContent.callToAction.split('randomly selected story')[0]}
                 {randomStoryId ? (
                   <a 
                     href={`/stories/${randomStoryId}`}
-                    className="text-cyan-600 hover:text-cyan-700 underline font-medium transition-colors duration-200"
+                    className={`text-${siteConfig.theme.accentColor} hover:text-${siteConfig.theme.accentColor.replace('600', '700')} underline font-medium transition-colors duration-200`}
                   >
-                    randomly selected story
+                    randomly selected {contentLabels.singularLower}
                   </a>
                 ) : (
-                  <span className="text-cyan-600 font-medium">randomly selected story</span>
+                  <span className={`text-${siteConfig.theme.accentColor} font-medium`}>randomly selected {contentLabels.singularLower}</span>
                 )}{' '}
-                from the selection…
+                {aboutContent.callToAction.split('randomly selected story')[1]}
               </p>
             </div>
           </div>
@@ -76,14 +79,14 @@ export default function AboutPage() {
                   href={`/stories/${randomStoryId}`}
                   className="btn btn-primary text-center font-medium tracking-wide"
                 >
-                  Read a Random Story
+                  Read a Random {contentLabels.singular}
                 </a>
               )}
               <Link 
                 href="/stories" 
                 className="btn btn-secondary text-center font-medium tracking-wide"
               >
-                Browse All Stories
+                Browse All {contentLabels.plural}
               </Link>
             </div>
           </div>
@@ -91,7 +94,7 @@ export default function AboutPage() {
           {/* Additional Info */}
           <div className="mt-10 pt-6 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-500 font-light italic leading-6">
-              These stories contain creative horror themes appropriate for middle school audiences.
+              {siteConfig.content.contentWarning}
             </p>
           </div>
         </div>
